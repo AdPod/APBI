@@ -93,9 +93,24 @@ def main(args):
 
     img = im_to_arr(args[0])
 
-    sobel = sobel_filter(img)
+    avg = applyFilter(img, averaging)
+    avg = Image.fromarray(avg.astype(np.uint8))
+    avg.show()
 
+    ga = applyFilter(img, gauss)
+    ga = Image.fromarray(ga.astype(np.uint8))
+    ga.show()
     
+    sha = applyFilter(img, sharpening)
+    sha = Image.fromarray(sha.astype(np.uint8))
+    sha.show()
+
+
+    rob = roberts_filter(img)
+    rob = Image.fromarray(rob.astype(np.uint8))
+    rob.show()
+
+    sobel = sobel_filter(img)
     sobel = Image.fromarray(sobel.astype(np.uint8))
     sobel.show()
 

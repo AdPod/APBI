@@ -11,7 +11,7 @@ def main(args):
 
     img = im_to_arr(args[0])
 
-    thresholded = threshold(img, 150)
+    thresholded = threshold(img, 90)
 
     projection = np.zeros(
         (thresholded.shape[0] + 32, thresholded.shape[1] + 32))

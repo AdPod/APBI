@@ -29,11 +29,8 @@ def main(args):
     expanded[:, :, 2] = expand_hist(b_channel)
 
 
-    img = Image.fromarray(img.astype(np.uint8))
-    img.show(title='original image')
-
-    expanded = Image.fromarray(expanded.astype(np.uint8))
-    expanded.show(title='histogram expanded')
+    Image.fromarray(img.astype(np.uint8)).show(title='original image')
+    Image.fromarray(expanded.astype(np.uint8)).show(title='histogram expanded')
 
     print_hist_img([img, expanded])
 
