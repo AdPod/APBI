@@ -1,0 +1,6 @@
+PIL
+numpy
+matplotlib
+
+
+python3-tk
