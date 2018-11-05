@@ -35,12 +35,12 @@ def applyFilter(arr, filter):
     padded = padding(arr)
     for x in range(arr.shape[0]):
         for y in range(arr.shape[1]):
-            padded[x, y, 0] = np.sum(np.multiply(
-                padded[x:x+3, y:y+3, 0], filter))
-            padded[x, y, 1] = np.sum(np.multiply(
-                padded[x:x+3, y:y+3, 1], filter))
-            padded[x, y, 2] = np.sum(np.multiply(
-                padded[x:x+3, y:y+3, 2], filter))
+            padded[x+1, y+1, 0] = bound(np.sum(np.multiply(
+                padded[x:x+3, y:y+3, 0], filter)))
+            padded[x+1, y+1, 1] = bound(np.sum(np.multiply(
+                padded[x:x+3, y:y+3, 1], filter)))
+            padded[x+1, y+1, 2] = bound(np.sum(np.multiply(
+                padded[x:x+3, y:y+3, 2], filter)))
 
     return padded
 
@@ -50,7 +50,6 @@ def sobel_filter(arr):
 
     for x in range(arr.shape[0]):
         for y in range(arr.shape[1]):
-            a = padded[x:x+3, y:y+3, :]
             r, g, b = 0, 0, 0
 
             r += np.abs(np.sum(np.multiply(padded[x:x+3, y:y+3, 0], sobel0)))
@@ -79,12 +78,12 @@ def roberts_filter(arr):
 
     for x in range(arr.shape[0]):
         for y in range(arr.shape[1]):
-            padded[x, y, 0] = np.absolute(np.sum(np.multiply(
-                padded[x:x+2, y:y+2, 0], roberts1))) + np.absolute(np.sum(np.multiply(padded[x:x+2, y:y+2, 0], roberts2)))
-            padded[x, y, 1] = np.absolute(np.sum(np.multiply(
-                padded[x:x+2, y:y+2, 1], roberts1))) + np.absolute(np.sum(np.multiply(padded[x:x+2, y:y+2, 1], roberts2)))
-            padded[x, y, 2] = np.absolute(np.sum(np.multiply(
-                padded[x:x+2, y:y+2, 2], roberts1))) + np.absolute(np.sum(np.multiply(padded[x:x+2, y:y+2, 2], roberts2)))
+            padded[x, y, 0] = bound(np.absolute(np.sum(np.multiply(
+                padded[x:x+2, y:y+2, 0], roberts1))) + np.absolute(np.sum(np.multiply(padded[x:x+2, y:y+2, 0], roberts2))))
+            padded[x, y, 1] = bound(np.absolute(np.sum(np.multiply(
+                padded[x:x+2, y:y+2, 1], roberts1))) + np.absolute(np.sum(np.multiply(padded[x:x+2, y:y+2, 1], roberts2))))
+            padded[x, y, 2] = bound(np.absolute(np.sum(np.multiply(
+                padded[x:x+2, y:y+2, 2], roberts1))) + np.absolute(np.sum(np.multiply(padded[x:x+2, y:y+2, 2], roberts2))))
 
     return padded
 
@@ -100,11 +99,10 @@ def main(args):
     ga = applyFilter(img, gauss)
     ga = Image.fromarray(ga.astype(np.uint8))
     ga.show()
-    
+
     sha = applyFilter(img, sharpening)
     sha = Image.fromarray(sha.astype(np.uint8))
     sha.show()
-
 
     rob = roberts_filter(img)
     rob = Image.fromarray(rob.astype(np.uint8))
