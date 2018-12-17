@@ -1,0 +1,4 @@
+﻿Morphological filters
+contrast sigmoid – gamma correction
+transformation is how he called  
+deformations
