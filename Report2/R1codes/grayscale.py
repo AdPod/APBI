@@ -11,12 +11,15 @@ def conv_gray(arr):
     (w, h) = arr.shape[:2]
     avg = np.zeros((w, h), np.int16)
     wei = np.zeros((w, h), np.int16)
-    sh = arr.shape
     for x in range(w):
         for y in range(h):
             r, g, b = arr[x, y]
             avg[x, y] = (r + g + b)/3
-            wei[x, y] = 0.299*r + 0.587*g + 0.144*b
+            we = 0.299*r + 0.587*g + 0.144*b
+            if we > 255:
+                wei[x, y] = 255
+            else:
+                wei[x, y] = we
     return wei, avg
 
 

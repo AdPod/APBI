@@ -1,3 +1,4 @@
 .vscode
-*/__pycache__
+__pycache__
 template.tex
+Report2/R1codes/__pycache__/
