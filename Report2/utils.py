@@ -15,7 +15,7 @@ def bw_padding(arr, size):
     return padded
 
 
-def dylate(img_arr, kernel_size=5):
+def dilate(img_arr, kernel_size=5):
     r = int((kernel_size - 1)/2)
     working = bw_padding(img_arr, r)
     for x in range(img_arr.shape[0]):

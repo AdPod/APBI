@@ -11,7 +11,7 @@ from R1codes.grayscale import conv_gray
 from R1codes.histogram_exp import expand_hist
 from R1codes.threshold import threshold
 from R1codes.utils import im_to_arr
-from utils import bw_padding, dylate, erode
+from utils import bw_padding, dilate, erode
 
 
 def follow_region_border(regions, x, y, filled):
@@ -143,18 +143,18 @@ def find_regions(img_arr):
         for y in range(1, img.shape[1] - 1):
             if img[x, y] == 0:
                 l = regions[x - 1, y]
-                r = regions[x, y - 1]
-                if l > 1 and r > 1:
+                t = regions[x, y - 1]
+                if l > 1 and t > 1:
                         # conflict
-                    if l == r:
+                    if l == t:
                         regions[x, y] = l
                     else:
-                        sm = min(l, r)
-                        lg = max(l, r)
+                        sm = min(l, t)
+                        lg = max(l, t)
                         regions_conflicts.add((sm, lg))
                         regions[x, y] = sm
-                elif max(l, r) > 1:
-                    regions[x, y] = max(l, r)
+                elif max(l, t) > 1:
+                    regions[x, y] = max(l, t)
                 else:
                     regions_count += 1
                     regions[x, y] = regions_count
@@ -172,10 +172,7 @@ def find_regions(img_arr):
             removed.add(conflict[1])
 
     pure = np.array(regions)
-    scaled = regions * 255 / regions_count
-    scaled[scaled > 255] = 255
-    scaled[scaled < 0] = 0
-    return pure, scaled.round()
+    return pure
 
 
 def find_pupil(outlined_regions, regions_areas, img):
@@ -219,43 +216,18 @@ def find_inner_circle(img_arr):
     img = contrast(img, 1.1)
     img = threshold(img, 10)
 
-    dylated = dylate(img, 9)
-    eroded = erode(dylated, 9)
+    dilated = dilate(img, 9)
+    eroded = erode(dilated, 9)
 
-    regions, printable_regions = find_regions(eroded)
-    # Image.fromarray(printable_regions.astype(np.uint8)).show()
+    regions = find_regions(eroded)
 
     outlined_regions, filled = outline_regions(regions)
 
     regions_areas = np.unique(regions, return_counts=True)
-    # scaled = regions * 255 / len(regions_areas[0])
-    # scaled[scaled > 255] = 255
-    # scaled[scaled < 0] = 0
-    # Image.fromarray(scaled.astype(np.uint8)).show()
 
     guess_for_pupil = find_pupil(outlined_regions, regions_areas, img)
 
-    # scaled = filled * 255 / len(regions_areas[0])
-    # scaled[scaled > 255] = 255
-    # scaled[scaled < 0] = 0
-    # Image.fromarray(scaled.astype(np.uint8)).show()
-
-    y_center = guess_for_pupil['y_min'] + \
-        (guess_for_pupil['y_max'] - guess_for_pupil['y_min'])/2
-    x_center = guess_for_pupil['x_min'] + \
-        (guess_for_pupil['x_max'] - guess_for_pupil['x_min'])/2
-
     center = guess_for_pupil['center']
-    radious = (guess_for_pupil['x_max'] - guess_for_pupil['x_min'] +
-               guess_for_pupil['y_max'] - guess_for_pupil['y_min'])/4
-    return radious, center
-
-    # mask = Image.new('RGBA', (img.shape[1], img.shape[0]))
-    # draw = ImageDraw.Draw(mask)
-    # draw.ellipse((guess_for_pupil['y_min'], guess_for_pupil['x_min'],
-    #               guess_for_pupil['y_max'], guess_for_pupil['x_max']), fill='blue', outline='blue')
-
-    # mask.show()
-
-    # printable_regions = Image.fromarray(printable_regions.astype(np.uint8))
-    # printable_regions.show()
+    radius = (guess_for_pupil['x_max'] - guess_for_pupil['x_min'] +
+              guess_for_pupil['y_max'] - guess_for_pupil['y_min'])/4
+    return radius, center

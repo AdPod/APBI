@@ -11,11 +11,11 @@ from R1codes.grayscale import conv_gray
 from R1codes.histogram_exp import expand_hist
 from R1codes.threshold import threshold
 from R1codes.utils import im_to_arr
-from utils import dylate, erode, quantize
+from utils import dilate, erode, quantize
 
 
-def estimate_radious(binary_img, center_point):
-    radious_estimates = []
+def estimate_radius(binary_img, center_point):
+    radius_estimates = []
 
     h, w = binary_img.shape
     # look for starting points of region
@@ -24,7 +24,7 @@ def estimate_radious(binary_img, center_point):
     for x in range(round(center_point[1])):
         for y in range(h):
             if binary_img[y, x] < 5 and binary_img[y, x+1] > 250:
-                radious_estimates.append(
+                radius_estimates.append(
                     math.sqrt((center_point[1] - x)**2 + (center_point[0] - y)**2))
                 i += 1
         if i > 0.5*h:
@@ -34,34 +34,35 @@ def estimate_radious(binary_img, center_point):
     for x in range(w-2, round(center_point[1]+1), -1):
         for y in range(h):
             if binary_img[y, x] > 250 and binary_img[y, x+1] < 5:
-                radious_estimates.append(
+                radius_estimates.append(
                     math.sqrt((center_point[1] - x)**2 + (center_point[0] - y)**2))
                 i += 1
         if i > 0.5*h:
             break  # 50% is enough
 
-    radious_estimates = sorted(radious_estimates)
+    radius_estimates = sorted(radius_estimates)
     # trimmed mean
-    trimmed = radious_estimates[round(
-        len(radious_estimates)*0.1):round(len(radious_estimates)*0.8)]
+    trimmed = radius_estimates[round(
+        len(radius_estimates)*0.1):round(len(radius_estimates)*0.8)]
 
     R = np.average(trimmed)
     return R
 
 
-def find_outer_radious(img_arr, center_point):
+def find_outer_radius(img_arr, center_point):
     cont = np.copy(img_arr)
     cont = contrast(cont, 2)
     grayscale, _ = conv_gray(cont)
 
     grayscale, palette = quantize(grayscale, 4)
 
+
     # threshold all values smaller than maximal
     grayscale[grayscale < palette[-2] + 2] = 0
     grayscale[grayscale > 0] = 255
 
     grayscale = erode(grayscale, 7)
-    grayscale = dylate(grayscale, 7)
+    grayscale = dilate(grayscale, 7)
 
-    R = estimate_radious(grayscale, center_point)
+    R = estimate_radius(grayscale, center_point)
     return R
